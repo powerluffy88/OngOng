@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Vegas Royale Slot</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root {
+  --gold: #ffd700;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: radial-gradient(circle at top, #300, #000);
+  color: var(--gold);
+  text-align: center;
+}
+
+h1 {
+  margin: 20px 0;
+  font-size: 2.5em;
+  text-shadow: 0 0 15px red;
+}
+
+.machine {
+  max-width: 420px;
+  margin: auto;
+  background: linear-gradient(145deg, #111, #000);
+  border: 4px solid var(--gold);
+  border-radius: 25px;
+  box-shadow: 0 0 40px gold;
+  padding: 20px;
+}
+
+.credits {
+  font-size: 1.2em;
+  margin-bottom: 10px;
+}
+
+.reel-window {
+  background: black;
+  border: 4px inset var(--gold);
+  border-radius: 15px;
+  padding: 15px;
+  margin: 20px 0;
+}
+
+.slots {
+  display: flex;
+  justify-content: center;
+}
+
+.slot {
+  background: #fff;
+  width: 90px;
+  height: 90px;
+  margin: 0 6px;
+  border-radius: 12px;
+  box-shadow: inset 0 0 10px #000;
+}
+
+.slot img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.spin {
+  animation: spin 0.15s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: translateY(0); }
+  to { transform: translateY(15px); }
+}
+
+select, button {
+  padding: 10px;
+  font-size: 18px;
+  border-radius: 10px;
+  border: none;
+}
+
+button {
+  width: 80%;
+  margin-top: 10px;
+  background: linear-gradient(to bottom, #ffe066, var(--gold));
+  cursor: pointer;
+  box-shadow: 0 0 25px gold;
+}
+
+button:hover {
+  box-shadow: 0 0 40px gold;
+}
+
+.message {
+  margin-top: 15px;
+  min-height: 28px;
+  font-size: 1.1em;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🎰 VEGA$ ROYALE 🎰</h1>
+
+<div class="machine">
+  <div class="credits">
+    Credits: $<span id="credits">100</span>
+  </div>
+
+  <div class="reel-window">
+    <div class="slots">
+      <div class="slot"><img id="r1"></div>
+      <div class="slot"><img id="r2"></div>
+      <div class="slot"><img id="r3"></div>
+    </div>
+  </div>
+
+  Bet:
+  <select id="bet">
+    <option value="5">$5</option>
+    <option value="10" selected>$10</option>
+    <option value="20">$20</option>
+    <option value="50">$50</option>
+  </select>
+
+  <br>
+  <button onclick="spin()">SPIN</button>
+
+  <div class="message" id="msg"></div>
+</div>
+
+<!-- 🔊 SOUNDS -->
+<audio id="spinSound" src="https://assets.mixkit.co/sfx/preview/mixkit-slot-machine-spin-1930.mp3"></audio>
+<audio id="winSound" src="https://assets.mixkit.co/sfx/preview/mixkit-casino-win-1998.mp3"></audio>
+<audio id="jackpotSound" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jackpot-219.wav"></audio>
+
+<script>
+const symbols = [
+  {name:"cherry", img:"https://upload.wikimedia.org/wikipedia/commons/b/bb/Cherry_Icon.png"},
+  {name:"bell", img:"https://upload.wikimedia.org/wikipedia/commons/3/3b/Bell_icon.png"},
+  {name:"diamond", img:"https://upload.wikimedia.org/wikipedia/commons/5/5f/Diamond_icon.png"},
+  {name:"star", img:"https://upload.wikimedia.org/wikipedia/commons/e/e5/Star_icon.png"}
+];
+
+let credits = 100;
+
+function randSymbol() {
+  return symbols[Math.floor(Math.random() * symbols.length)];
+}
+
+function spin() {
+  const bet = Number(betSelect.value);
+  const msg = document.getElementById("msg");
+
+  if (credits < bet) {
+    msg.innerText = "❌ Not enough credits";
+    return;
+  }
+
+  credits -= bet;
+  updateCredits();
+
+  spinSound.currentTime = 0;
+  spinSound.play();
+
+  setTimeout(() => {
+    const a = randSymbol();
+    const b = randSymbol();
+    const c = randSymbol();
+
+    r1.src = a.img;
+    r2.src = b.img;
+    r3.src = c.img;
+
+    spinSound.pause();
+
+    if (a.name === b.name && b.name === c.name) {
+      const win = bet * 6;
+      credits += win;
+      jackpotSound.play();
+      msg.innerText = "🎉 JACKPOT! +$" + win;
+    } else if (a.name === b.name || b.name === c.name || a.name === c.name) {
+      const win = bet * 2;
+      credits += win;
+      winSound.play();
+      msg.innerText = "✨ WIN! +$" + win;
+    } else {
+      msg.innerText = "😢 No win";
+    }
+
+    updateCredits();
+  }, 900);
+}
+
+function updateCredits() {
+  creditsSpan.innerText = credits;
+}
+
+const betSelect = document.getElementById("bet");
+const creditsSpan = document.getElementById("credits");
+</script>
+
+</body>
+</html>
