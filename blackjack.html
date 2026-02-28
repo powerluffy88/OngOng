@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>♠️ OngOng Blackjack ♠️</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            text-align: center;
+        }
+        h1 {
+            color: #4CAF50;
+            font-size: 2.5em;
+        }
+        .container {
+            margin: auto;
+            width: 80%;
+            max-width: 600px;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1.2em;
+            margin: 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+        }
+        .card {
+            display: inline-block;
+            width: 100px;
+            height: 150px;
+            margin: 10px;
+            background-color: #fff;
+            border: 1px solid #333;
+            border-radius: 5px;
+            font-size: 2em;
+            line-height: 150px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>♠️ OngOng Blackjack ♠️</h1>
+        <div id="credits">Credits: $100</div>
+        <div id="betting-options">
+            <label for="bet">Choose your bet:</label>
+            <select id="bet" default="10">
+                <option value="5">$5</option>
+                <option value="10" selected>$10</option>
+                <option value="20">$20</option>
+                <option value="50">$50</option>
+            </select>
+            <button id="deal">DEAL</button>
+        </div>
+        <div id="player-cards"></div>
+        <div id="dealer-cards"></div>
+        <div id="message"></div>
+    </div>
+    <script>
+        let credits = 100;
+        let playerCards = [];
+        let dealerCards = [];
+
+        document.getElementById('deal').addEventListener('click', () => {
+            const bet = parseInt(document.getElementById('bet').value);
+            if (bet > credits) {
+                alert("Not enough credits!");
+                return;
+            }
+            // Start New Game
+            playerCards = dealCards();
+            dealerCards = dealCards();
+            updateDisplay();
+            setTimeout(() => evaluateGame(bet), 1000);
+        });
+
+        function dealCards() {
+            return [getRandomCard(), getRandomCard()];
+        }
+
+        function getRandomCard() {
+            return Math.floor(Math.random() * 11) + 1;  // Blackjack card value 1-11
+        }
+
+        function updateDisplay() {
+            document.getElementById('player-cards').innerHTML = 'Player Cards: ' + playerCards.join(' ');
+            document.getElementById('dealer-cards').innerHTML = 'Dealer Cards: ' + dealerCards.join(' ');
+            document.getElementById('credits').innerHTML = 'Credits: $' + credits;
+        }
+
+        function evaluateGame(bet) {
+            const playerScore = calculateScore(playerCards);
+            const dealerScore = calculateScore(dealerCards);
+            let result;
+            if (playerScore > 21) {
+                result = 'You bust!';
+                credits -= bet;
+            } else if (dealerScore > 21 || playerScore > dealerScore) {
+                result = 'You win!';
+                credits += bet;
+            } else if (playerScore < dealerScore) {
+                result = 'You lose!';
+                credits -= bet;
+            } else {
+                result = 'It’s a draw!';
+            }
+            document.getElementById('message').innerText = result;
+            updateDisplay();
+        }
+
+        function calculateScore(cards) {
+            return cards.reduce((total, card) => total + card, 0);
+        }
+    </script>
+</body>
+</html>
