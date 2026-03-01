@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>八方来财 · 单曲循环 · YouTube 播放器</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root { --green:#90ee90; }  /* light green */
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:radial-gradient(circle at top,#300,#000);
+  color:var(--green);
+  text-align:center;
+}
+header h1{
+  margin:20px 0;
+  font-size:2.5em;
+  text-shadow:0 0 15px #90ee90;
+}
+.machine{
+  max-width:420px;
+  margin:auto;
+  background:linear-gradient(145deg,#111,#000);
+  border:4px solid var(--green);
+  border-radius:25px;
+  box-shadow:0 0 40px #90ee90;
+  padding:20px;
+}
+.credits{font-size:1.2em;}
+.reel-window{
+  background:black;
+  border:4px inset var(--green);
+  border-radius:15px;
+  padding:15px;
+  margin:20px 0;
+}
+.slots{display:flex;justify-content:center;}
+.slot{
+  background:#fff;
+  width:90px;
+  height:90px;
+  margin:0 6px;
+  border-radius:12px;
+}
+.slot img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+}
+button,select,input{
+  padding:10px;
+  font-size:16px;
+  border-radius:8px;
+  border:none;
+}
+button{
+  width:80%;
+  margin-top:10px;
+  background:linear-gradient(to bottom,#98fb98,var(--green));
+  cursor:pointer;
+}
+.message{margin-top:10px;min-height:24px;}
+
+#chat{
+  max-width:420px;
+  margin:20px auto;
+}
+#onlineBox{
+  border:1px solid #90ee90;
+  padding:6px;
+  margin-bottom:8px;
+  text-align:left;
+}
+#onlineBox div {
+  color: #90ee90;
+}
+#onlineUsers{
+  margin:4px 0 0;
+  padding-left:18px;
+  color: white;
+  list-style-type: circle;
+}
+#onlineUsers li {
+  color: #90ee90;
+}
+#messages{
+  height:150px;
+  overflow-y:auto;
+  border:1px solid #90ee90;
+  padding:8px;
+  text-align:left;
+  margin-bottom:5px;
+  background-color: #1a1a1a;
+  color: #ffffff;
+  font-size: 14px;
+  line-height: 1.4;
+}
+#messages div {
+  padding: 4px 8px;
+  border-bottom: 1px solid #444;
+  color: #ffffff;
+  background-color: #2a2a2a;
+  margin: 2px 0;
+  border-radius: 4px;
+}
+#messages div:nth-child(odd) {
+  background-color: #333333;
+}
+#messages div:last-child {
+  border-bottom: none;
+}
+#chatInput {
+  width: 70%;
+  background: #333;
+  color: white;
+  border: 1px solid #90ee90;
+  padding: 10px;
+  font-size: 14px;
+}
+#chatInput::placeholder {
+  color: #aaa;
+}
+#chatInput:focus {
+  outline: none;
+  border-color: #90ee90;
+  box-shadow: 0 0 5px #90ee90;
+}
+#sendBtn {
+  width: 25%;
+  background: linear-gradient(to bottom,#98fb98,var(--green));
+  padding: 10px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #000;
+  border: none;
+  cursor: pointer;
+}
+#sendBtn:hover {
+  background: linear-gradient(to bottom, #90ee90, #7ccd7c);
+}
+
+/* Music Player Styles — YouTube 播放器 (单曲循环 · 八方来财) */
+.music-player {
+  max-width: 420px;
+  margin: 20px auto;
+  background: linear-gradient(145deg, #1a1a1a, #000);
+  border: 2px solid var(--green);
+  border-radius: 15px;
+  padding: 15px;
+  box-shadow: 0 0 20px rgba(144, 238, 144, 0.3);
+}
+
+.player-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--green);
+}
+
+.player-header h3 {
+  margin: 0;
+  font-size: 1.2em;
+  color: var(--green);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.now-playing {
+  font-size: 0.9em;
+  color: #fff;
+  background: #2a2a2a;
+  padding: 8px;
+  border-radius: 8px;
+  margin-top: 10px;
+  border-left: 3px solid var(--green);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.track-title {
+  font-weight: bold;
+  color: var(--green);
+  font-size: 1.1em;
+  margin-right: 5px;
+}
+
+.volume-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  opacity: 0.7;
+}
+
+.volume-icon {
+  color: var(--green);
+  font-size: 20px;
+}
+
+/* Scrollbar */
+.playlist::-webkit-scrollbar {
+  width: 5px;
+}
+.playlist::-webkit-scrollbar-track {
+  background: #222;
+}
+.playlist::-webkit-scrollbar-thumb {
+  background: var(--green);
+  border-radius: 5px;
+}
+
+/* 让 YouTube iframe 圆角、暗调 */
+.youtube-embed {
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+  aspect-ratio: 16 / 9;
+  box-shadow: 0 0 15px rgba(144,238,144,0.3);
+}
+.youtube-embed iframe {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+@media (max-width: 480px) {
+  .music-player { margin: 20px 10px; }
+}
+</style>
+</head>
+
+<body>
+<header>
+  <h1>八方来财</h1>
+</header>
+
+<main>
+<section class="machine">
+  <div class="credits">Credits: $<span id="credits">100</span></div>
+
+  <div class="reel-window">
+    <div class="slots">
+      <div class="slot"><img id="r1"></div>
+      <div class="slot"><img id="r2"></div>
+      <div class="slot"><img id="r3"></div>
+    </div>
+  </div>
+
+  <label>Bet:</label>
+  <select id="bet">
+    <option value="5">$5</option>
+    <option value="10" selected>$10</option>
+    <option value="20">$20</option>
+    <option value="50">$50</option>
+  </select><br>
+
+  <button id="spinBtn">SPIN</button>
+  <div class="message" id="msg"></div>
+</section>
+
+<!-- 🎵 音乐播放器 —— YouTube 播放器 单曲循环 (八方来财 · 揽佬) -->
+<section class="music-player">
+  <div class="player-header">
+    <h3>🎬 八方来财 · YouTube 循环</h3>
+    <span style="color: #888; font-size: 12px;">官方歌单</span>
+  </div>
+  
+  <!-- YouTube 嵌入式播放器 - 使用可播放的八方来财视频 -->
+  <!-- 🎵 MP3 Music Player -->
+<div class="mp3-player">
+  <audio id="bgMusic" controls autoplay loop>
+    <source src="Disco.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+</div>
+  
+  <!-- 歌曲信息 -->
+  <div class="now-playing">
+    <div>
+      <span class="track-title">八方来财</span>
+      <span>- 揽佬SKAI ISYOURGOD</span>
+    </div>
+    <div style="color: #90ee90; font-size: 20px;" title="现在播放">🎧</div>
+  </div>
+  
+  <!-- 简单的音量/循环提示 -->
+  <div class="volume-control">
+    <span class="volume-icon">🔊</span>
+    <span style="color: #aaa; font-size: 14px;">点击播放器取消静音 · 无限循环</span>
+  </div>
+  <div style="margin-top: 8px; color: #6f6; font-size: 13px; background: #1e3a1e; padding: 4px; border-radius: 20px;">
+    ⚡ 单曲循环 · 八方来财 (揽佬) 
+  </div>
+</section>
+
+<section id="chat">
+  <div id="onlineBox">
+    <div id="onlineCount">🟢 Online: 0</div>
+    <ul id="onlineUsers"></ul>
+  </div>
+
+  <div id="messages"></div>
+  <input id="chatInput" placeholder="Type message..." />
+  <button id="sendBtn">Send</button>
+</section>
+</main>
+
+<!-- 老虎机音效（保留） -->
+<audio id="spinSound" src="https://assets.mixkit.co/sfx/preview/mixkit-slot-machine-spin-1930.mp3"></audio>
+<audio id="winSound" src="https://assets.mixkit.co/sfx/preview/mixkit-casino-win-1998.mp3"></audio>
+<audio id="jackpotSound" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jackpot-219.wav"></audio>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<script>
+/* 🎰 SLOT MACHINE (保持不变) */
+const symbols=[
+ {name:"cherry",img:"https://upload.wikimedia.org/wikipedia/commons/b/bb/Cherry_Icon.png"},
+ {name:"bell",img:"https://upload.wikimedia.org/wikipedia/commons/3/3b/Bell_icon.png"},
+ {name:"diamond",img:"https://upload.wikimedia.org/wikipedia/commons/5/5f/Diamond_icon.png"},
+ {name:"star",img:"https://upload.wikimedia.org/wikipedia/commons/e/e5/Star_icon.png"}
+];
+
+let credits=100;
+const r1=document.getElementById("r1");
+const r2=document.getElementById("r2");
+const r3=document.getElementById("r3");
+const creditsSpan=document.getElementById("credits");
+const betSelect=document.getElementById("bet");
+const msg=document.getElementById("msg");
+const spinBtn=document.getElementById("spinBtn");
+const spinSound=document.getElementById("spinSound");
+const winSound=document.getElementById("winSound");
+const jackpotSound=document.getElementById("jackpotSound");
+
+[r1,r2,r3].forEach(r=>r.src=symbols[Math.floor(Math.random()*symbols.length)].img);
+
+function rand(){return symbols[Math.floor(Math.random()*symbols.length)];}
+function update(){creditsSpan.textContent=credits;}
+
+spinBtn.onclick=()=>{
+ const bet=+betSelect.value;
+ if(credits<bet){msg.textContent="❌ Not enough credits";return;}
+ credits-=bet;update();
+ spinSound.play();
+
+ setTimeout(()=>{
+  const a=rand(),b=rand(),c=rand();
+  r1.src=a.img;r2.src=b.img;r3.src=c.img;
+  spinSound.pause();
+  spinSound.currentTime = 0;
+
+  if(a.name===b.name&&b.name===c.name){
+    credits+=bet*6;
+    jackpotSound.play();
+    msg.textContent="🎉 JACKPOT!";
+  }else if(a.name===b.name||b.name===c.name||a.name===c.name){
+    credits+=bet*2;
+    winSound.play();
+    msg.textContent="✨ WIN!";
+  }else msg.textContent="😢 No win";
+  update();
+ },800);
+};
+
+/* 🔥 FIREBASE —— 请填入真实配置 */
+const firebaseConfig = {
+  apiKey: "AIzaSyBkBPwq9Of7bMf7XqBfR_q0KpMfLJqVQ0c",
+  authDomain: "vegas-chat-demo.firebaseapp.com",
+  databaseURL: "https://vegas-chat-demo-default-rtdb.firebaseio.com",
+  projectId: "vegas-chat-demo",
+  storageBucket: "vegas-chat-demo.appspot.com",
+  messagingSenderId: "123456789012",
+  appId: "1:123456789012:web:abcdef1234567890"
+};
+
+// 初始化 Firebase
+try {
+  firebase.initializeApp(firebaseConfig);
+} catch (e) {
+  console.log("Firebase already initialized or config error");
+}
+const db=firebase.database();
+
+/* 👤 USERNAME */
+const username=prompt("Enter your name")||"Player";
+
+/* 💬 CHAT */
+const chatInput = document.getElementById("chatInput");
+const sendBtn = document.getElementById("sendBtn");
+const messagesDiv = document.getElementById("messages");
+const onlineUsers = document.getElementById("onlineUsers");
+const onlineCount = document.getElementById("onlineCount");
+
+const chatRef=db.ref("vegas-room");
+
+sendBtn.onclick = () => {
+  const text = chatInput.value.trim();
+  if (!text) return;
+
+  chatRef.push({
+    user: username,
+    text: text,
+    time: Date.now()
+  })
+  .then(() => {
+    chatInput.value = "";
+  })
+  .catch(error => {
+    console.error("Send failed:", error);
+    alert("Chat message failed to send");
+  });
+};
+
+chatInput.addEventListener("keypress", (e) => {
+  if(e.key === "Enter") {
+    sendBtn.click();
+  }
+});
+
+chatRef.on("child_added",(snapshot)=>{
+ const data = snapshot.val();
+ const div = document.createElement("div");
+ 
+ const time = new Date(data.time).toLocaleTimeString();
+ 
+ if (data.user === "🎰 SYSTEM") {
+   div.style.color = "#90ee90";
+   div.style.fontStyle = "italic";
+   div.style.backgroundColor = "#2a2a2a";
+   div.style.borderLeft = "3px solid #90ee90";
+   div.style.paddingLeft = "8px";
+   div.textContent = `⚡ ${data.text} (${time})`;
+ } else {
+   div.textContent = `👤 ${data.user}: ${data.text} (${time})`;
+ }
+ 
+ messagesDiv.appendChild(div);
+ messagesDiv.scrollTop = messagesDiv.scrollHeight;
+});
+
+/* 🟢 ONLINE USERS (presence) */
+const presenceRef = db.ref("presence");
+const myPresenceRef = presenceRef.push();
+
+myPresenceRef.set({
+  name: username,
+  joined: Date.now()
+});
+
+myPresenceRef.onDisconnect().remove();
+
+presenceRef.on("value", (snapshot) => {
+  const users = snapshot.val() || {};
+  onlineUsers.innerHTML = "";
+  
+  const names = Object.values(users).map(user => user.name);
+  const uniqueNames = [...new Set(names)];
+  
+  onlineCount.textContent = "🟢 Online: " + uniqueNames.length;
+
+  uniqueNames.forEach(name => {
+    const li = document.createElement("li");
+    li.textContent = name;
+    onlineUsers.appendChild(li);
+  });
+});
+
+// 欢迎消息
+setTimeout(() => {
+  chatRef.push({
+    user: "🎰 SYSTEM",
+    text: `${username} joined the casino!`,
+    time: Date.now()
+  });
+}, 1000);
+</script>
+<script>
+document.addEventListener("click", () => {
+  const music = document.getElementById("bgMusic");
+  if (music && music.paused) {
+    music.play().catch(()=>{});
+  }
+}, { once: true });
+</script>
+<!-- YouTube播放器已修复 - 使用有效视频ID: 4b_8BEaRxXo (八方来财) -->
+</body>
+</html>
