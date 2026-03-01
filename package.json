@@ -1,0 +1,1 @@
+{"name": "ongong-server","version": "1.0.0","description": "A WebSocket server using Express and ws","main": "index.js","scripts": {"start": "node index.js","dev": "nodemon index.js"},"dependencies": {"express": "^4.17.1","ws": "^8.5.0","nodemon": "^2.0.20"}}
