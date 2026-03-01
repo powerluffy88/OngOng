@@ -1,26 +1,54 @@
-# Vegas Royale Slot Machine Game - Real-Time Chat System
+// Adding a live chat feature for the online slot game
 
-This project integrates a real-time chat system with the Vegas Royale Slot machine game, allowing players to interact and share their experiences in real-time.
+// Chat panel component
+class ChatPanel {
+    constructor() {
+        this.messages = [];
+        this.players = [];
+    }
 
-## Features
-- **Real-Time Messaging**: Players can send and receive messages instantly.
-- **User Authentication**: Secure user login for personalized chat experiences.
-- **Game Notifications**: Alerts for in-game events sent to chat.
-- **Emoji Support**: Users can express themselves with emojis.
+    addMessage(player, message) {
+        this.messages.push({ player, message });
+        this.displayMessages();
+    }
 
-## Technologies Used
-- WebSockets for real-time communication
-- Node.js for the server-side logic
-- React.js for the front-end interface
+    displayMessages() {
+        const messageDisplay = document.getElementById('messageDisplay');
+        messageDisplay.innerHTML = ''; // Clear previous messages
+        this.messages.forEach(msg => {
+            messageDisplay.innerHTML += `<p><strong>${msg.player}:</strong> ${msg.message}</p>`;
+        });
+    }
 
-## Setup Instructions
-1. Clone the repository.
-2. Install dependencies using `npm install`.
-3. Run the server with `node server.js`.
-4. Open the client in your browser.
+    sendMessage(player, message) {
+        // Here we would handle sending the message through WebSocket
+        this.addMessage(player, message);
+    }
+}
 
-## Usage
-- Join the chat while playing the Vegas Royale Slot machine to interact with other players.
-- Report any issues or suggestions via the support channel in the chat.
+// WebSocket setup
+const socket = new WebSocket('wss://your_WebSocket_server');
 
-Happy gaming!
+socket.onmessage = function(event) {
+    const data = JSON.parse(event.data);
+    chatPanel.addMessage(data.player, data.message);
+};
+
+const chatPanel = new ChatPanel();
+
+// Define HTML structure for chat panel
+const chatHtml = `<div id='chatPanel'>
+    <div id='messageDisplay'></div>
+    <input type='text' id='messageInput' placeholder='Type a message...'>
+    <button id='sendButton'>Send</button>
+</div>`;
+
+document.body.innerHTML += chatHtml;
+
+// Button handler to send message
+document.getElementById('sendButton').onclick = function() {
+    const player = 'PlayerName'; // You would get the actual player name here
+    const message = document.getElementById('messageInput').value;
+    chatPanel.sendMessage(player, message);
+    document.getElementById('messageInput').value = ''; // Clear input
+};
