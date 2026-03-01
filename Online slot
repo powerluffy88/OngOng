@@ -1,54 +1,74 @@
-// Adding a live chat feature for the online slot game
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Slot Game</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: space-between;
+            font-family: Arial, sans-serif;
+        }
+        #chat {
+            width: 300px;
+            height: 400px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        #chat-input {
+            display: flex;
+            margin-top: 10px;
+        }
+        #message {
+            flex: 1;
+        }
+        #username {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h1>Slot Machine Game</h1>
+        <div id="slot-machine">
+            <!-- Slot machine structure goes here -->
+        </div>
+    </div>
+    <div id="chat">
+        <div id="messages"></div>
+        <div id="chat-input">
+            <input type="text" id="username" placeholder="Enter your username" /><br>
+            <input type="text" id="message" placeholder="Type your message" />
+            <button id="send">Send</button>
+        </div>
+    </div>
+    <script>
+        const chat = document.getElementById('chat');
+        const messages = document.getElementById('messages');
+        const sendButton = document.getElementById('send');
+        const usernameInput = document.getElementById('username');
+        const messageInput = document.getElementById('message');
 
-// Chat panel component
-class ChatPanel {
-    constructor() {
-        this.messages = [];
-        this.players = [];
-    }
+        const socket = new WebSocket('ws://yourserver.com/socket');
 
-    addMessage(player, message) {
-        this.messages.push({ player, message });
-        this.displayMessages();
-    }
-
-    displayMessages() {
-        const messageDisplay = document.getElementById('messageDisplay');
-        messageDisplay.innerHTML = ''; // Clear previous messages
-        this.messages.forEach(msg => {
-            messageDisplay.innerHTML += `<p><strong>${msg.player}:</strong> ${msg.message}</p>`;
+        socket.addEventListener('message', function (event) {
+            const message = JSON.parse(event.data);
+            const msgElement = document.createElement('div');
+            msgElement.textContent = `${message.username}: ${message.text}`;
+            messages.appendChild(msgElement);
+            chat.scrollTop = chat.scrollHeight;
         });
-    }
 
-    sendMessage(player, message) {
-        // Here we would handle sending the message through WebSocket
-        this.addMessage(player, message);
-    }
-}
-
-// WebSocket setup
-const socket = new WebSocket('wss://your_WebSocket_server');
-
-socket.onmessage = function(event) {
-    const data = JSON.parse(event.data);
-    chatPanel.addMessage(data.player, data.message);
-};
-
-const chatPanel = new ChatPanel();
-
-// Define HTML structure for chat panel
-const chatHtml = `<div id='chatPanel'>
-    <div id='messageDisplay'></div>
-    <input type='text' id='messageInput' placeholder='Type a message...'>
-    <button id='sendButton'>Send</button>
-</div>`;
-
-document.body.innerHTML += chatHtml;
-
-// Button handler to send message
-document.getElementById('sendButton').onclick = function() {
-    const player = 'PlayerName'; // You would get the actual player name here
-    const message = document.getElementById('messageInput').value;
-    chatPanel.sendMessage(player, message);
-    document.getElementById('messageInput').value = ''; // Clear input
-};
+        sendButton.addEventListener('click', function () {
+            const message = messageInput.value;
+            const username = usernameInput.value || 'Anonymous';
+            socket.send(JSON.stringify({username: username, text: message}));
+            messageInput.value = '';
+        });
+    </script>
+</body>
+</html>
