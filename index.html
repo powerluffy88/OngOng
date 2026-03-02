@@ -202,6 +202,21 @@ button{
   font-size: 20px;
 }
 
+/* YouTube iframe container */
+.youtube-embed {
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+  aspect-ratio: 16 / 9;
+  box-shadow: 0 0 15px rgba(144,238,144,0.3);
+  margin-bottom: 10px;
+}
+.youtube-embed iframe {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
 /* Scrollbar */
 .playlist::-webkit-scrollbar {
   width: 5px;
@@ -214,22 +229,23 @@ button{
   border-radius: 5px;
 }
 
-/* 让 YouTube iframe 圆角、暗调 */
-.youtube-embed {
-  border-radius: 12px;
-  overflow: hidden;
-  background: #000;
-  aspect-ratio: 16 / 9;
-  box-shadow: 0 0 15px rgba(144,238,144,0.3);
-}
-.youtube-embed iframe {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
 @media (max-width: 480px) {
   .music-player { margin: 20px 10px; }
+}
+
+/* Unmute button */
+#unmute-btn {
+  background: #2a5a2a;
+  color: #90ee90;
+  border: 1px solid #90ee90;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+#unmute-btn:hover {
+  background: #3a6a3a;
 }
 </style>
 </head>
@@ -270,28 +286,32 @@ button{
     <span style="color: #888; font-size: 12px;">官方歌单</span>
   </div>
   
-  <!-- YouTube 嵌入式播放器 - 使用可播放的八方来财视频 -->
-  <!-- 🎵 MP3 Music Player -->
-<div class="mp3-player">
-  <audio id="bgMusic" controls autoplay loop>
-    <source src="Disco.mp3" type="audio/mpeg">
-    Your browser does not support the audio element.
-  </audio>
-</div>
+  <!-- YouTube 嵌入式播放器 - 使用可播放的八方来财视频 (ID: 4b_8BEaRxXo) -->
+  <div class="youtube-embed">
+    <iframe 
+      id="youtube-player"
+      src="https://www.youtube.com/embed/4b_8BEaRxXo?autoplay=1&mute=1&loop=1&playlist=4b_8BEaRxXo&controls=1&modestbranding=1&rel=0"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen>
+    </iframe>
+  </div>
   
-  <!-- 歌曲信息 -->
+  <!-- 歌曲信息和音量控制 -->
   <div class="now-playing">
     <div>
       <span class="track-title">八方来财</span>
       <span>- 揽佬SKAI ISYOURGOD</span>
     </div>
-    <div style="color: #90ee90; font-size: 20px;" title="现在播放">🎧</div>
+    <div style="display: flex; align-items: center;">
+      <span style="color: #90ee90; font-size: 20px;" title="现在播放">🎧</span>
+      <button id="unmute-btn">🔇 取消静音</button>
+    </div>
   </div>
   
-  <!-- 简单的音量/循环提示 -->
   <div class="volume-control">
     <span class="volume-icon">🔊</span>
-    <span style="color: #aaa; font-size: 14px;">点击播放器取消静音 · 无限循环</span>
+    <span style="color: #aaa; font-size: 14px;">点击「取消静音」开启声音 · 无限循环</span>
   </div>
   <div style="margin-top: 8px; color: #6f6; font-size: 13px; background: #1e3a1e; padding: 4px; border-radius: 20px;">
     ⚡ 单曲循环 · 八方来财 (揽佬) 
@@ -310,7 +330,7 @@ button{
 </section>
 </main>
 
-<!-- 老虎机音效（保留） -->
+<!-- 老虎机音效 -->
 <audio id="spinSound" src="https://assets.mixkit.co/sfx/preview/mixkit-slot-machine-spin-1930.mp3"></audio>
 <audio id="winSound" src="https://assets.mixkit.co/sfx/preview/mixkit-casino-win-1998.mp3"></audio>
 <audio id="jackpotSound" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jackpot-219.wav"></audio>
@@ -370,7 +390,7 @@ spinBtn.onclick=()=>{
  },800);
 };
 
-/* 🔥 FIREBASE —— 请填入真实配置 */
+/* 🔥 FIREBASE — 请确保你的 Firebase 配置正确 */
 const firebaseConfig = {
   apiKey: "AIzaSyBkBPwq9Of7bMf7XqBfR_q0KpMfLJqVQ0c",
   authDomain: "vegas-chat-demo.firebaseapp.com",
@@ -385,7 +405,7 @@ const firebaseConfig = {
 try {
   firebase.initializeApp(firebaseConfig);
 } catch (e) {
-  console.log("Firebase already initialized or config error");
+  console.warn("Firebase init failed (可能已初始化)", e);
 }
 const db=firebase.database();
 
@@ -415,7 +435,7 @@ sendBtn.onclick = () => {
   })
   .catch(error => {
     console.error("Send failed:", error);
-    alert("Chat message failed to send");
+    alert("Chat message failed to send. 请检查Firebase配置。");
   });
 };
 
@@ -427,6 +447,7 @@ chatInput.addEventListener("keypress", (e) => {
 
 chatRef.on("child_added",(snapshot)=>{
  const data = snapshot.val();
+ if (!data) return;
  const div = document.createElement("div");
  
  const time = new Date(data.time).toLocaleTimeString();
@@ -479,17 +500,23 @@ setTimeout(() => {
     user: "🎰 SYSTEM",
     text: `${username} joined the casino!`,
     time: Date.now()
-  });
+  }).catch(() => {});
 }, 1000);
-</script>
-<script>
-document.addEventListener("click", () => {
-  const music = document.getElementById("bgMusic");
-  if (music && music.paused) {
-    music.play().catch(()=>{});
+
+/* YouTube 播放器取消静音功能 */
+const unmuteBtn = document.getElementById('unmute-btn');
+const playerFrame = document.getElementById('youtube-player');
+
+unmuteBtn.addEventListener('click', () => {
+  // 通过 postMessage 通知 YouTube 播放器取消静音
+  if (playerFrame && playerFrame.contentWindow) {
+    playerFrame.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
+    playerFrame.contentWindow.postMessage('{"event":"command","func":"setVolume","args":[100]}', '*');
+    unmuteBtn.textContent = '🔊 已取消静音';
+    unmuteBtn.style.opacity = '0.6';
+    unmuteBtn.disabled = true;
   }
-}, { once: true });
+});
 </script>
-<!-- YouTube播放器已修复 - 使用有效视频ID: 4b_8BEaRxXo (八方来财) -->
 </body>
 </html>
